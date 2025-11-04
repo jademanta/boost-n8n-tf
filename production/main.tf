@@ -1,6 +1,6 @@
 # --- Locals and AMI Data Source ---
 locals {
-  repo_url       = "https://github.com/your-org/your-n8n-repo.git" # <-- CHANGE THIS
+  repo_url       = "https://github.com/jademanta/boost-n8n-tf.git" # <-- CHANGE THIS
   repo_branch    = "main"
   data_folder    = "/mnt/n9n_data" 
   domain_name    = "boocorp.com"
@@ -98,7 +98,7 @@ resource "aws_instance" "n8n_server" {
 
 # --- Elastic IP Allocation and Association ---
 resource "aws_eip" "n8n_eip" {
-    
+
   tags = {
     Name = "n8n-static-IP"
   }

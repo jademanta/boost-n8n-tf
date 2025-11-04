@@ -1,5 +1,5 @@
 locals {
-  repo_url       = "https://github.com/your-org/your-n8n-repo.git" # <-- CHANGE THIS
+  repo_url       = "https://github.com/jademanta/boost-n8n-tf.git" # <-- CHANGE THIS
   repo_branch    = "main"
   data_folder    = "/mnt/n9n_data" 
   domain_name    = "boocorp.com"
@@ -49,7 +49,7 @@ resource "aws_security_group" "n8n_sg" {
   }
 
   ingress { # <-- This block was nested incorrectly
-    description = "Allow SSH from Jade's lan"
+    description = "Allow SSH from Jade home"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"

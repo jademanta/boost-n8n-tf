@@ -1,0 +1,5 @@
+staging/.terraform.lock.hcl
+staging/stageplan
+staging/.terraform/providers/registry.terraform.io/hashicorp/aws/6.19.0/linux_amd64/LICENSE.txt
+staging/.terraform/providers/registry.terraform.io/hashicorp/aws/6.19.0/linux_amd64/terraform-provider-aws_v6.19.0_x5
+staging/terraform.tfstate
