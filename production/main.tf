@@ -1,51 +1,57 @@
-# --- Locals and AMI Data Source ---
 locals {
-  repo_url       = "https://github.com/jademanta/boost-n8n-tf.git" # <-- CHANGE THIS
+  repo_url       = "https://github.com/jademanta/boost-n8n-tf.git" 
   repo_branch    = "main"
-  data_folder    = "/mnt/n9n_data" 
+  data_folder    = "/home/ubuntu/n8n_data"
   domain_name    = "boocorp.com"
-  subdomain      = "n8n"
+  subdomain      = "n8nstaged"
   timezone       = "America/Denver"
   docker_network = "n8n_network"
 }
 
 data "aws_ami" "ubuntu" {
- most_recent = true
- filter {
-   name   = "name"
-   values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
- }
- filter {
-   name   = "virtualization-type"
-   values = ["hvm"]
- }
- filter {
-   name   = "architecture"
-   values = ["x86_64"]
- }
- owners = ["099720109477"] #canonical
+  most_recent = true
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+  }
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+  owners = ["099720109477"] #canonical
 }
 
 resource "aws_security_group" "n8n_sg" {
   name        = "n8n-caddy-access-sg"
   description = "Allow HTTP, HTTPS, and SSH traffic"
-  vpc_id      = var.vpc_id 
-  # Ingress rules (Fixed nesting issue)
+  vpc_id      = var.vpc_id
+
   ingress {
     description = "Allow SSH from corp lan"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["10.10.0.0/22"] 
+    cidr_blocks = ["10.10.0.0/22"]
   }
-  ingress { 
-    description = "Allow SSH from Jade's lan"
+  ingress {
+    description = "Allow SSH from Jade home lan"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
     cidr_blocks = ["67.199.173.110/32"]
   }
-  ingress { 
+    ingress {
+    description = "Allow SSH from ssl vpn"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["205.197.213.195/32"]
+  }
+  ingress {
     description = "Allow HTTP for Caddy/n8n access"
     from_port   = 80
     to_port     = 80
@@ -71,15 +77,23 @@ resource "aws_security_group" "n8n_sg" {
   }
 }
 
-# --- EC2 Instance Creation ---
 resource "aws_instance" "n8n_server" {
   ami           = data.aws_ami.ubuntu.id
-  instance_type = var.instance_type 
-  key_name      = var.key_name 
-  subnet_id     = var.subnet_id 
+  instance_type = var.instance_type
+  launch_template {
+    id      = aws_launch_template.n8n_lt.id
+    version = "$Latest"
+  }
   
-  # User data script execution
-  user_data = templatefile("${path.module}/scripts/installdocker.sh", {
+  tags = {
+    Name = "${local.subdomain}-${local.domain_name}-Server"
+  }
+}
+
+# --- Data Source to render and encode the script ---
+data "template_file" "n8n_docker_setup" {
+  template = file("${path.module}/scripts/installdocker.sh")
+  vars = {
     repo_branch    = local.repo_branch
     repo_url       = local.repo_url
     data_folder    = local.data_folder
@@ -87,18 +101,44 @@ resource "aws_instance" "n8n_server" {
     domain_name    = local.domain_name
     timezone       = local.timezone
     docker_network = local.docker_network
-  })
-
-  vpc_security_group_ids = [aws_security_group.n8n_sg.id]
-
-  tags = {
-    Name = "${local.subdomain}-${local.domain_name}-Server"
   }
 }
 
+resource "aws_launch_template" "n8n_lt" {
+  name_prefix   = "n8n-launch-template"
+  image_id      = data.aws_ami.ubuntu.id
+  instance_type = var.instance_type
+  key_name      = var.key_name
+  
+  # VPC and Security Group Configuration
+  network_interfaces {
+    associate_public_ip_address = true
+    security_groups         = [aws_security_group.n8n_sg.id]
+    subnet_id                   = var.subnet_id
+  }
+
+  # Root Volume Configuration
+  block_device_mappings {
+    device_name = "/dev/sda1"
+    ebs {
+      volume_size = 30
+      volume_type = "gp3"
+      delete_on_termination = true
+    }
+  }
+
+  # Pass the encoded user data
+  user_data = base64encode(data.template_file.n8n_docker_setup.rendered)
+  
+  tag_specifications {
+    resource_type = "instance"
+    tags = {
+      Name = "${local.subdomain}-${local.domain_name}-Server-LT"
+    }
+  }
+}
 # --- Elastic IP Allocation and Association ---
 resource "aws_eip" "n8n_eip" {
-
   tags = {
     Name = "n8n-static-IP"
   }
@@ -116,17 +156,5 @@ output "n8n_elastic_ip" {
 
 output "ssh_connect_command" {
   description = "SSH command to connect to the n8n server."
-  value       = "ssh -i ${var.key_name} ubuntu@${aws_eip.n8n_eip.public_ip}"
-}
-
-output "boostn8n_access_key_id" {
-  description = "Access Key ID for the boostn8n IAM user."
-  value       = aws_iam_access_key.boostn8n_key.id
-  sensitive   = true
-}
-
-output "boostn8n_secret_access_key" {
-  description = "Secret Access Key for the boostn8n IAM user. SAVE THIS NOW!"
-  value       = aws_iam_access_key.boostn8n_key.secret
-  sensitive   = true
+  value       = "ssh -i ${var.key_name}.pem ubuntu@${aws_eip.n8n_eip.public_ip}"
 }
