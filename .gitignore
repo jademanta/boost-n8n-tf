@@ -10,3 +10,6 @@ production/.terraform/
 production/.terraform.lock.hcl
 production/tfplan
 staging/terraform.tfstate.backup
+production/terraform.tfstate
+production/terraform.tfstate.backup
+staging/terraform.tfstate.backup

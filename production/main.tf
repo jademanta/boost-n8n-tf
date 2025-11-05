@@ -3,7 +3,7 @@ locals {
   repo_branch    = "main"
   data_folder    = "/home/ubuntu/n8n_data"
   domain_name    = "boocorp.com"
-  subdomain      = "n8nstaged"
+  subdomain      = "n8n"
   timezone       = "America/Denver"
   docker_network = "n8n_network"
 }
@@ -86,7 +86,7 @@ resource "aws_instance" "n8n_server" {
   }
 
   tags = {
-    Name = "${local.subdomain}-${local.domain_name}-Server"
+    Name = "${local.subdomain}.${local.domain_name}-Server"
   }
 }
 
