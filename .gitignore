@@ -3,3 +3,10 @@ staging/stageplan
 staging/.terraform/providers/registry.terraform.io/hashicorp/aws/6.19.0/linux_amd64/LICENSE.txt
 staging/.terraform/providers/registry.terraform.io/hashicorp/aws/6.19.0/linux_amd64/terraform-provider-aws_v6.19.0_x5
 staging/terraform.tfstate
+staging/.terraform.tfstate.lock.info
+staging/scripts/installdocker.sh
+.gitignore
+production/.terraform/
+production/.terraform.lock.hcl
+production/tfplan
+staging/terraform.tfstate.backup

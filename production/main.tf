@@ -1,5 +1,5 @@
 locals {
-  repo_url       = "https://github.com/jademanta/boost-n8n-tf.git" 
+  repo_url       = "https://github.com/jademanta/boost-n8n-tf.git"
   repo_branch    = "main"
   data_folder    = "/home/ubuntu/n8n_data"
   domain_name    = "boocorp.com"
@@ -44,7 +44,7 @@ resource "aws_security_group" "n8n_sg" {
     protocol    = "tcp"
     cidr_blocks = ["67.199.173.110/32"]
   }
-    ingress {
+  ingress {
     description = "Allow SSH from ssl vpn"
     from_port   = 22
     to_port     = 22
@@ -84,7 +84,7 @@ resource "aws_instance" "n8n_server" {
     id      = aws_launch_template.n8n_lt.id
     version = "$Latest"
   }
-  
+
   tags = {
     Name = "${local.subdomain}-${local.domain_name}-Server"
   }
@@ -109,11 +109,11 @@ resource "aws_launch_template" "n8n_lt" {
   image_id      = data.aws_ami.ubuntu.id
   instance_type = var.instance_type
   key_name      = var.key_name
-  
+
   # VPC and Security Group Configuration
   network_interfaces {
     associate_public_ip_address = true
-    security_groups         = [aws_security_group.n8n_sg.id]
+    security_groups             = [aws_security_group.n8n_sg.id]
     subnet_id                   = var.subnet_id
   }
 
@@ -121,15 +121,15 @@ resource "aws_launch_template" "n8n_lt" {
   block_device_mappings {
     device_name = "/dev/sda1"
     ebs {
-      volume_size = 30
-      volume_type = "gp3"
+      volume_size           = 30
+      volume_type           = "gp3"
       delete_on_termination = true
     }
   }
 
   # Pass the encoded user data
   user_data = base64encode(data.template_file.n8n_docker_setup.rendered)
-  
+
   tag_specifications {
     resource_type = "instance"
     tags = {

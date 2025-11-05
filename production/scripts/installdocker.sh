@@ -43,7 +43,7 @@ EOC
 # Create the required configuration folders and volumes based on DATA_FOLDER
 mkdir -p ${data_folder}/caddy_config
 mkdir -p ${data_folder}/local_files
-cp Caddyfile $DATA_FOLDER/caddy_config/Caddyfile
+cp Caddyfile $DATA_FOLDER/caddy_config/
 
 # create docker network
 docker network create ${docker_network}
