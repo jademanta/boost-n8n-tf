@@ -86,7 +86,7 @@ resource "aws_instance" "n8n_server" {
   }
 
   tags = {
-    Name = "${local.subdomain}.${local.domain_name}-Server"
+    Name = "${local.subdomain}-${local.domain_name}-Server"
   }
 }
 

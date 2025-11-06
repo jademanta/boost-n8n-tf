@@ -25,10 +25,10 @@ usermod -aG docker ubuntu
 
 # --- 2. Clone Repository (Using Terraform Variables) ---
 mkdir -p /home/ubuntu/
-cd /home/ubuntu/
+cd /home/ubuntu/staging/
 # Variables are now injected by Terraform's templatefile()
 git clone --branch ${repo_branch} ${repo_url} n8n_repo
-cd n8n_repo
+cd n8n_repo/staging
 
 # --- 3. Create .env File and Volumes ---
 
@@ -43,7 +43,7 @@ EOC
 # Create the required configuration folders and volumes based on DATA_FOLDER
 mkdir -p ${data_folder}/caddy_config
 mkdir -p ${data_folder}/local_files
-cp Caddyfile $DATA_FOLDER/caddy_config/
+cp Caddyfile ${data_folder}/caddy_config/Caddyfile
 
 # create docker network
 docker network create ${docker_network}
