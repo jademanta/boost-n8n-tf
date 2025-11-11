@@ -114,6 +114,7 @@ resource "aws_launch_template" "n8n_lt" {
   # VPC and Security Group Configuration
   network_interfaces {
     associate_public_ip_address = true
+    device_index                = 0
     security_groups             = [aws_security_group.n8n_sg.id]
     subnet_id                   = var.subnet_id
   }

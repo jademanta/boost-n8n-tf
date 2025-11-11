@@ -106,7 +106,7 @@ data "template_file" "n8n_docker_setup" {
 }
 
 resource "aws_launch_template" "n8n_lt" {
-  name_prefix   = "n8n-launch-template"
+  name_prefix   = "stage-n8n-launch-template"
   image_id      = data.aws_ami.ubuntu.id
   instance_type = var.instance_type
   key_name      = var.key_name
@@ -114,7 +114,8 @@ resource "aws_launch_template" "n8n_lt" {
   # VPC and Security Group Configuration
   network_interfaces {
     associate_public_ip_address = true
-    security_groups         = [aws_security_group.n8n_sg.id]
+    device_index                = 0
+    security_groups             = [aws_security_group.n8n_sg.id]
     subnet_id                   = var.subnet_id
   }
 
