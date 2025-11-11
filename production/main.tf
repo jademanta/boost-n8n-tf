@@ -106,10 +106,11 @@ data "template_file" "n8n_docker_setup" {
 }
 
 resource "aws_launch_template" "n8n_lt" {
-  name_prefix   = "n8n-launch-template"
+  name_prefix   = "prod-n8n-launch-template"
   image_id      = data.aws_ami.ubuntu.id
   instance_type = var.instance_type
   key_name      = var.key_name
+  
 
   # VPC and Security Group Configuration
   network_interfaces {

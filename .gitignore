@@ -14,3 +14,5 @@ production/terraform.tfstate
 production/terraform.tfstate.backup
 staging/terraform.tfstate.backup
 production/prod.tfvars
+staging/.terraform/
+tfplan
