@@ -24,7 +24,7 @@ systemctl enable docker
 
 # --- 2. Clone Repository (Using Terraform Variables) ---
 mkdir -p /home/ubuntu/
-cd /home/ubuntu/staging/
+cd /home/ubuntu/
 # Variables are now injected by Terraform's templatefile()
 git clone --branch ${repo_branch} ${repo_url} n8n_repo
 cd n8n_repo/staging
