@@ -21,7 +21,6 @@ apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker
 # Enable and Start Docker Service
 systemctl start docker
 systemctl enable docker
-usermod -aG docker ubuntu
 
 # --- 2. Clone Repository (Using Terraform Variables) ---
 mkdir -p /home/ubuntu/
@@ -53,4 +52,5 @@ docker volume create caddy_data
 docker volume create n8n_data
 
 # --- 4. Start n8n using Docker Compose ---
+usermod -aG docker ubuntu
 docker compose up -d
